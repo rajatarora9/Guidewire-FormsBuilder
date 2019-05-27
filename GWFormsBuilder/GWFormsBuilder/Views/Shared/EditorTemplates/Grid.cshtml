@@ -1,0 +1,259 @@
+﻿@using Common.Contract;
+
+@{
+    var model = ViewContext.ViewData.Model as System.Collections.IList;
+    var htmlFieldName = ViewContext.ViewData.TemplateInfo.HtmlFieldPrefix;
+    var ShowMonthlyCalanderForIncreasedCommunity = ViewData["ShowMonthlyCalanderForIncreasedCommunity"];
+
+    var modelType = ViewContext.ViewData.Model.GetType().GenericTypeArguments[0];
+    var metadata = ModelMetadataProviders.Current.GetMetadataForType(null, modelType.UnderlyingSystemType);
+    var gridColumnsData = HtmlHelperExtension.GetColumnsMetadata(model);
+    var validationAttributeList = new Dictionary<string, Dictionary<string, object>>();
+
+    var customCollection = new List<SelectListItem>();
+
+    foreach (var propMetadata in metadata.Properties)
+    {
+        var visibleElement = gridColumnsData.FirstOrDefault(x => x.PropertyName == propMetadata.PropertyName);
+        if (visibleElement != null && visibleElement.IsVisible)
+        {
+
+            var validators = propMetadata.GetValidators(ViewContext.Controller.ControllerContext).ToList();
+
+            if (validators.Any())
+            {
+                var attributes = new Dictionary<string, object> { { "data-val", "true" } };
+                attributes.Add("apply-required-symbol", visibleElement.MandatorySymbolRequired);
+
+                foreach (var validator in validators)
+                {
+                    foreach (var rule in validator.GetClientValidationRules())
+                    {
+                        attributes.Add(string.Format("data-val-{0}", rule.ValidationType), rule.ErrorMessage);
+                        foreach (var param in rule.ValidationParameters)
+                        {
+                            attributes.Add(string.Format("data-val-{0}-{1}", rule.ValidationType, param.Key), param.Value);
+                        }
+                    }
+                }
+
+                validationAttributeList.Add(propMetadata.PropertyName, attributes);
+            }
+        }
+    }
+
+    var indexCount = 0;
+    var columnCount = 0;
+}
+<div class="table divParentGrid width-100percent" data-validationlist="@Json.Encode(validationAttributeList)">
+    <div id="scrollDiv" style="width:600px ; margin-left:6px">
+        <div class="table-row firstRow dynaGridFirstRow" style="display: table-cell;">
+            <div class="table-header-Row dynaGridHeaderText dynaGridHeaderContainer">
+                @foreach (var column in gridColumnsData.Where(x => x.IsVisible))
+                {
+                    if (column.IsHistoryView)
+                    {
+                    }
+                    if ((column.PropertyName == "ClientBecomeAwareDate" || column.PropertyName == "ClientReportedDate"))
+                    {
+                    }
+                    string columnclass = "ColumnHeader" + columnCount;
+                    //TFS:290860  Sorting on a column
+                    var sortingRequiredClass = "";
+                    var cursorHandClass = "";
+                    if (column.IsSortable)
+                    {
+                        sortingRequiredClass = " isSortingRequired"; //space added at the start of the string.
+                        cursorHandClass = " cursor-hand";
+                    }
+
+                    if (column.MandatorySymbolRequired)
+                    {
+                        <div class="table-cell @columnclass" style="float:none; padding-bottom: 2px; padding-left: 5px; padding-top: 2px; font-size: 14px; line-height: 20px; display: table-cell;vertical-align: middle;">
+                            @Html.Label(column.PropertyName, column.DisplayName, new { @class = "text-align-center vlabel required-label wordwrap" + sortingRequiredClass + cursorHandClass, Id = htmlFieldName + "[" + indexCount + "]." + column.PropertyName + "_" + "[" + indexCount + "]." + column.PropertyName, style = "margin-right : 3px", @for = "", @tabindex = "0" })
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-cell @columnclass" style="float:none; padding-bottom: 2px; padding-left: 5px; padding-top: 2px; font-size: 14px; line-height: 20px; display: table-cell;vertical-align: middle;">
+                            @Html.Label(column.PropertyName, column.DisplayName, new { @class = "text-align-center vlabel wordwrap" + sortingRequiredClass + cursorHandClass, Id = htmlFieldName + "[" + indexCount + "]." + column.PropertyName + "_" + "[" + indexCount + "]." + column.PropertyName, style = "margin-right : 3px", @for = "", @tabindex = "0" })
+                        </div>
+                    }
+                    columnCount++;
+                }
+                <div class="table-cell text-align-center" style="float:none; padding-bottom: 2px; padding-left: 5px; padding-top: 2px; font-size: 14px; line-height: 20px; display: table-cell;vertical-align: middle;">
+                    @Html.Label("", "", new { @class = "table-cell  vlabel", @for = "", @tabindex = "0" })
+                </div>
+            </div>
+            <hr class="hrRow" />
+            @foreach (var item in model)
+            {
+                columnCount = 0;
+                <div class="table-row dataRow dynaGridCellText ">
+                    <div class="table-row width-100percent gridDataRow">
+                        @{ var indexHiddenName = htmlFieldName + ".Index";
+                            <input type="hidden" name="@indexHiddenName" value="@indexCount" />
+                        }
+                        @foreach (var gridColumn in gridColumnsData.Where(x => !x.IsVisible))
+                        {
+                            var defaultValue = "";
+                            switch (gridColumn.ColumnDataType)
+                            {
+                                case ColumnDataType.Integer:
+                                    defaultValue = "0";
+                                    break;
+                                case ColumnDataType.Bool:
+                                    defaultValue = "false";
+                                    break;
+                            }
+                            @Html.HiddenFor(x => x, new { Id = htmlFieldName + "[" + indexCount + "]." + gridColumn.PropertyName, @data_defaultcolumnvalue = defaultValue, Name = htmlFieldName + "[" + indexCount + "]." + gridColumn.PropertyName, Value = item.GetType().GetProperty(gridColumn.PropertyName).GetValue(item) })
+                        }
+                        @foreach (var gridColumn in gridColumnsData.Where(x => x.IsVisible))
+                        {
+                            if (gridColumn.IsHistoryView)
+                            {
+
+                            }
+                            if ((gridColumn.PropertyName == "ClientBecomeAwareDate" || gridColumn.PropertyName == "ClientReportedDate"))
+                            {
+
+                            }
+                            var value = item.GetType().GetProperty(gridColumn.PropertyName).GetValue(item);
+                            var name = string.Format("{0}[{1}].{2}", htmlFieldName, indexCount, gridColumn.PropertyName);
+                            var classname = string.Format("{0}_{1}", htmlFieldName, gridColumn.PropertyName);
+                            //if ((gridColumn.ColumnType == ColumnType.DropDown && gridColumn.ReferenceTableName.Length < 1) || gridColumn.ColumnType == ColumnType.CheckBoxList)
+                            //{
+                            //    var instance = Activator.CreateInstance(gridColumn.Type);
+                            //    var methodInfo = gridColumn.Type.GetMethod(gridColumn.MethodName);
+
+                            //    object[] parametersArray = new object[] { value };
+                            //    customCollection = (List<SelectListItem>)methodInfo.Invoke(instance, parametersArray);
+                            //    if (customCollection != null && customCollection.Count > 0)
+                            //    {
+                            //        if (value != null && value.GetType().IsGenericType)
+                            //        {
+                            //            var values = value as List<string>;
+                            //            foreach (var v in values)
+                            //            {
+                            //                customCollection.FirstOrDefault(x => x.Value == v.ToString()).Selected = true;
+                            //            }
+                            //        }
+                            //        else if (value != null)
+                            //        {
+                            //            if (customCollection.FirstOrDefault(x => x.Value == value.ToString()) != null)
+                            //            {
+                            //                customCollection.FirstOrDefault(x => x.Value == value.ToString()).Selected = true;
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            string columnclass = "Column" + columnCount;
+                            columnCount++;
+                            <div class="table-cell @columnclass">
+                                @if (gridColumn.IsReadonly)
+                                {
+                                    @Html.HiddenFor(x => x, new { Name = name, Value = value, Id = name })
+                                }
+                                @switch (gridColumn.ColumnType)
+                                {
+                                    case ColumnType.DropDown:
+                                        if (string.IsNullOrEmpty(gridColumn.SecureObjectKey))
+                                        {
+                                            if (gridColumn.ReferenceTableName.Length < 1)
+                                            {
+                                                var selectedValue = customCollection != null && customCollection.Any(x => x.Selected) ? customCollection.FirstOrDefault(x => x.Selected).Value : "";
+                                                @Html.DropDownList(name, customCollection != null && customCollection.Any() ? customCollection : new List<SelectListItem>(), "--Select--", new { Name = name, @data_initialvalue = selectedValue, @class = "width-90percent comboBoxBaseStyle  " + classname, Id = name, @title = gridColumn.DisplayName })
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (gridColumn.ReferenceTableName.Length < 1)
+                                            {
+                                                var selectedValue = customCollection != null && customCollection.Any(x => x.Selected) ? customCollection.FirstOrDefault(x => x.Selected).Value : "";
+                                                @Html.DropDownList(name, customCollection, "--Select--", new { Name = name, @data_initialvalue = selectedValue, @class = "width-90percent comboBoxBaseStyle  " + classname, Id = name, @title = gridColumn.DisplayName })
+                                            }
+                                        }
+
+                                        break;
+                                    case ColumnType.TextBox:
+
+                                        if (gridColumn.MaxLength == 0)
+                                        {
+                                            @Html.TextBox(name, value, new { Name = name, @data_initialvalue = value, Id = name, @tabindex = "0", @class = "width-90percent textBoxBaseStyle", @title = gridColumn.DisplayName })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBox(name, value, new { Name = name, @data_initialvalue = value, Id = name, @tabindex = "0", @class = "width-90percent textBoxBaseStyle", maxlength = gridColumn.MaxLength, @title = gridColumn.DisplayName })
+                                        }
+
+
+                                        break;
+                                    case ColumnType.TextArea:
+                                        if (gridColumn.MaxLength == 0)
+                                        {
+                                            @Html.TextArea(name, value != null ? value.ToString() : "", new { Name = name, @data_initialvalue = value, Id = name, @class = "width-90percent", @tabindex = "0", @style = "white-space:normal", @title = gridColumn.DisplayName })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextArea(name, value != null ? value.ToString() : "", new { Name = name, @data_initialvalue = value, Id = name, @class = "width-90percent ", @tabindex = "0", maxlength = gridColumn.MaxLength, @style = "white-space:normal", @title = gridColumn.DisplayName })
+                                        }
+
+                                        break;
+                                }
+
+
+                            </div>
+                        }
+                        <div class="table-cell padding-top-10px" style="padding-left:20px">
+                            <img src="../../../Images/message_remove.png" alt="Remove" class="removeItem" tabindex="0" />
+                        </div>
+                    </div>
+                </div>indexCount++;
+            }
+        </div>
+    </div>
+    <div class="table-footer-row footerPanel table-row" style="width: 100%;height:40px !important ; margin-top:25px ; padding-top:5px;background-color:#e6e8dd !important">
+        <div class="totalSelectContainer">
+        </div>
+        <div class="pagerContainer">
+
+            <div class="addRecord table-cell" style="float: left; margin-right: 20%; margin-top: 6px;">
+                <a href="#" class="addNewRecord font-size-13px addLinkButton" style="color: #014d69;font-size:0.9375rem !important">+Record</a>
+            </div>
+            <div class="table-cell">
+                <button title="First Page" class="pagerButton moveFirst" type="button" style="padding: 0.5em 1em">
+                    <div class="pagerFirstTriangle">
+                        <div class="pagerFirstBar"></div>
+                    </div>
+                </button>
+            </div>
+            <div class="table-cell">
+                <button title="Previous Page" class="pagerButton movePrevious" type="button" style="padding: 0.5em 1em">
+                    <div class="pagerFirstTriangle "></div>
+                </button>
+            </div>
+            <div class="table-cell">
+                <label style="line-height: 25px; vertical-align: top;">Page</label>
+            </div>
+            <div class="table-cell" style="width: 2.375rem; height: 1.563rem; display: inline-block;">
+                <input class="pagerCurrent inputPageNumber" style="width: 2.65rem; height: 1.563rem; margin: 0rem!important; text-align: center; vertical-align: middle" type="number">
+            </div>
+            <div class="table-cell padding-left-10px">
+                <label class="totalPageLabel vlabel" style="line-height: 25px !important; vertical-align: top;"></label>
+            </div>
+            <div class="table-cell">
+                <button title="Next Page" class="pagerButton moveNext" type="button" style="padding: 0.5em 1em">
+                    <div class="pagerLastTriangle"></div>
+                </button>
+            </div>
+            <div class="table-cell">
+                <button title="Last Page" class="pagerButton moveLast " type="button" style="padding: 0.5em 1em">
+                    <div class="pagerLastTriangle">
+                        <div class="pagerLastBar"></div>
+                    </div>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

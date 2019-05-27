@@ -1,0 +1,221 @@
+﻿@using GWFormsBuilder.Models
+@using Newtonsoft.Json;
+@model GWControlModel
+@{
+    /**/
+
+    ViewBag.Title = "GW Forms Builder";
+    ViewData.Model = Model;
+}
+
+@Html.HiddenFor(m => m.InputType, new { @id = "hdninputtype" })
+
+
+<div>
+</div>
+<div>
+    <table>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td>
+                <h3>Level 0 - Nested</h3>
+                <div class="gwFormBuilder_Level0">
+                    <div class="table-row">
+                        <div class="table-cell gridRow dynaGrid" style="width:98% !important">
+                            @Html.EditorFor(model => Model.LevelZeroControlGrid, "Grid", Model.LevelZeroControlGrid)
+                        </div>
+                    </div>
+                </div>
+                <h3>Level 1 - Nested</h3>
+                <div class="gwFormBuilder ">
+                    <div class="table-row">
+                        <div class="table-cell gridRow dynaGrid" style="width:98% !important">
+                            @Html.EditorFor(model => Model.GWControlList, "Grid", Model.GWControlList)
+                        </div>
+                    </div>
+                </div>
+                <div></div>
+                <h3>Level 2 - Nested </h3>
+                <div class="gwFormBuilder_Level1">
+                    <div class="table-row">
+                        <div class="table-cell gridRow dynaGrid" style="width:98% !important">
+                            @Html.EditorFor(model => Model.LevelOneGWControl, "Grid", Model.LevelOneGWControl)
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td>
+                <div style="text-align: center;">
+                    <input type="button" value="Generate Code" id="submit" />
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<div style="margin-left:25%;">
+    <h3>Generated Code:</h3>
+    @Html.TextArea("GeneatedFile", "", new { @style = "height:200px;width:700px; overflow:auto;", spellcheck = "false" })
+</div>
+
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="~/Scripts/grid.js"></script>
+@*<script type="text/javascript" src="~/Scripts/input.js"></script>*@
+<script type="text/javascript" src="~/Scripts/Index.js"></script>
+<script>
+
+    var _inputType = @Html.Raw(JsonConvert.SerializeObject(Model.InputType));
+    var _yesNo = @Html.Raw(JsonConvert.SerializeObject(Model.YesNo));
+    var _valueType = @Html.Raw(JsonConvert.SerializeObject(Model.ValueType));
+    var _levelOneControlType = @Html.Raw(JsonConvert.SerializeObject(Model.LevelOneInputType));
+    var _levelZeroControlType = @Html.Raw(JsonConvert.SerializeObject(Model.LevelZeroInputType));
+    $(document).ready(function () {
+        $('.gwFormBuilder')
+            .each(function () {
+                $('div.table', $(this)).initilizePager({
+                    pageSize: 5,
+                    gridContainerWidth: 1300,
+                    customwidth: [
+                        100,  //Name
+                        100,  //Interview Date
+                        100,  //Inteview Source
+                        100,  //Interview Type
+                        100,  //Interview Status
+                        100,  //Relationship To Household
+                        100,
+                        100,
+                        100,
+                        100,
+                        60], //Verified On,,
+                    removeItemCallback: "", addItemCallback: "", addLinkText: 'Control'
+                });
+            });
+
+        $('.gwFormBuilder_Level0')
+            .each(function () {
+                $('div.table', $(this)).initilizePager({
+                    pageSize: 5,
+                    gridContainerWidth: 400,
+                    customwidth: [
+                        100,  //Name
+                        100,
+                        60], //Verified On,,
+                    removeItemCallback: "", addItemCallback: "", addLinkText: 'Control'
+                });
+            });
+
+            $('.gwFormBuilder_Level1')
+                .each(function () {
+                    $('div.table', $(this)).initilizePager({
+                        pageSize: 5,
+                        gridContainerWidth: 1300,
+                        customwidth: [
+                            100,  //Name
+                            100,  //Interview Date
+                            100,  //Inteview Source
+                            100,  //Interview Type
+                            100,  //Interview Status
+                            100,  //Relationship To Household
+                            100,
+                            100,
+                            180,
+                            100,
+                            100,
+                            100,
+                            100,
+                            100,
+                            100,
+                            60], //Verified On,,
+                        removeItemCallback: "", addItemCallback: "", addLinkText: 'Control'
+                    });
+                });
+
+        $(_inputType).each(function (key, value) {
+            $("select[name*='ControlType']").append(new Option(value, value));
+        })
+
+        $(_yesNo).each(function (key, value) {
+            $("select[name*='IsVisible']").append(new Option(value, value));
+        })
+
+        $(_yesNo).each(function (key, value) {
+            $("select[name*='IsRequired']").append(new Option(value, value));
+        })
+
+        $(_yesNo).each(function (key, value) {
+            $("select[name*='IsEditable']").append(new Option(value, value));
+        })
+
+        $(_valueType).each(function (key, value) {
+            $("select[name*='ValueType']").append(new Option(value, value));
+        })
+
+        $(_yesNo).each(function (key, value) {
+            $("select[name*='IsParent']").append(new Option(value, value));
+        })
+
+        $(_levelOneControlType).each(function (key, value) {
+            $("select[name*='LevelOneControl']").append(new Option(value, value));
+        })
+
+        $(_levelZeroControlType).each(function (key, value) {
+            $("select[name*='LevelZeroControl']").append(new Option(value, value));
+        })
+
+        $.fn.getGridRowsAsJsonArray = function () {
+
+            var o = {};
+            var result = [];
+            $.each($('.gridDataRow', $(this)), function () {
+                o = {};
+                var parentRow = $(this);
+                var dataRow = $(':input', $($(this))).serializeArray();
+
+                $.each(dataRow, function () {
+
+                    var name = $($(this).attr('name').split('.')).get(-1);
+                    var inputElement = $("input[name$='" + name + "']:checkbox", $(parentRow));
+                    if ($(inputElement).length > 0) {
+                        o[name] = $(inputElement).is(":checked");
+                    }
+                    else { if (o[name] === undefined) { o[name] = $(this).attr('value'); } }
+
+                });
+                result.push(o);
+            });
+            return result;
+        };
+
+        $('#submit').on('click', function () {
+            model = [];
+            debugger;
+            GWControlList = $('.gwFormBuilder ').getGridRowsAsJsonArray();
+            LevelOneGWControl = $('.gwFormBuilder_Level1').getGridRowsAsJsonArray();
+            LevelZeroGWControl = $('.gwFormBuilder_Level0').getGridRowsAsJsonArray();
+            $.ajax({
+                url: "/Home/Index",
+                type: 'POST',
+                data: { GWControlList: GWControlList, LevelOneGWControl: LevelOneGWControl, LevelZeroControlGrid: LevelZeroGWControl},
+                success: function (response) {
+                    if (response.isSuccess) {
+                        $('#GeneatedFile').val(response.data);
+                    }
+                    else {
+
+                    }
+                }
+
+            })
+        });
+
+    });
+</script>
