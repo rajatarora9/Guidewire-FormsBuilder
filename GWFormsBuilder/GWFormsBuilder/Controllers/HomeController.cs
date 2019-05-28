@@ -43,68 +43,71 @@ namespace GWFormsBuilder.Controllers
 
 
             XmlNodeList nodes = doc.GetElementsByTagName("InputColumn");
-
+            
             foreach (XmlNode node in nodes)
             {
                 XmlNodeList childnodes = node.ChildNodes;
 
                 foreach (XmlNode childnode in childnodes)
                 {
+                    GWControl control = new GWControl();
                     XmlAttributeCollection attributes;
                     if (childnode.Attributes != null)
                     {
                         attributes = childnode.Attributes;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-
-                    foreach (XmlAttribute attribute in attributes)
-                    {
-                        GWControl control = new GWControl();
                         control.ControlType = childnode.Name;
-                        if(attribute.Name == "label")
+                        foreach (XmlAttribute attribute in attributes)
                         {
-                            control.Label = attribute.Value;
-                        }
-                        if (attribute.Name == "editable")
-                        {
-                            control.IsEditable = attribute.Value;
-                        }
-                        if (attribute.Name == "action")
-                        {
-                            control.Action = attribute.Value;
-                        }
-                        if (attribute.Name == "id")
-                        {
-                            control.ID = attribute.Value;
-                        }
-                        if (attribute.Name == "required")
-                        {
-                            control.IsRequired = attribute.Value;
-                        }
-                        if (attribute.Name == "visible")
-                        {
-                            control.IsVisible = attribute.Value;
-                        }
-                        if (attribute.Name == "value")
-                        {
-                            control.Value = attribute.Value;
-                        }
-                        if (attribute.Name == "valueType")
-                        {
-                            control.ValueType = attribute.Value;
-                        }
-                        else if(attribute.Name == "CustomValueType")
-                        {
-                            control.CustomValueType = attribute.Value;
+
+                            
+                            if (attribute.Name == "label")
+                            {
+                                control.Label = attribute.Value;
+                            }
+                            if (attribute.Name == "editable")
+                            {
+                                control.IsEditable = attribute.Value;
+                            }
+                            if (attribute.Name == "action")
+                            {
+                                control.Action = attribute.Value;
+                            }
+                            if (attribute.Name == "id")
+                            {
+                                control.ID = attribute.Value;
+                            }
+                            if (attribute.Name == "required")
+                            {
+                                control.IsRequired = attribute.Value;
+                            }
+                            if (attribute.Name == "visible")
+                            {
+                                control.IsVisible = attribute.Value;
+                            }
+                            if (attribute.Name == "value")
+                            {
+                                control.Value = attribute.Value;
+                            }
+                            if (attribute.Name == "valueType")
+                            {
+                                control.ValueType = attribute.Value;
+                            }
+                            else if (attribute.Name == "CustomValueType")
+                            {
+                                control.CustomValueType = attribute.Value;
+                            }
                         }
 
                         model.GWControlList.Add(control);
                     }
+                    else
+                    {
+
+                    }
+
+                    
                 }
-            }         
+            }
 
             List<GWControl> newCollection = new List<GWControl>()
             {
