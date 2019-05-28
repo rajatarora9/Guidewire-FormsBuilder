@@ -19,11 +19,93 @@ namespace GWFormsBuilder.Controllers
             model.GWControlList = new List<GWControl>();
             model.LevelOneGWControl = new List<LevelOneGWControl>();
             model.LevelZeroControlGrid = new List<LevelZeroControls>();
-            model.InputType = new List<string> { "TextInput", "TypeKeyInput", "BooleanRadioInput", "CurrencyInput", "TextAreaInput", "Label" , "DateInput" };
-            model.LevelOneInputType = new List<string> { "ToolBar", "RowIterator", "PostOnChange", "InputDivider", "MenuItem", "Reflect"};
+            model.InputType = new Dictionary<string, string>();
+            model.InputType .Add("TextInput", "TextInput");
+            model.InputType.Add("TypeKeyInput","TypeKeyInput");
+            model.InputType.Add("CurrencyInput", "CurrencyInput");
+            model.InputType.Add("BooleanRadioInput", "BooleanRadioInput");
+            model.InputType.Add("Label", "Label");
+            model.InputType.Add("TextAreaInput", "TextAreaInput");
+            model.InputType.Add("DateInput", "DateInput");
+            model.LevelOneInputType = new List<string> {"Label", "ToolBar", "RowIterator", "PostOnChange", "InputDivider", "MenuItem", "Reflect"};
             model.LevelZeroInputType = new List<string> { "DetailViewPanel" };
             model.YesNo = new List<string> { "True", "False" };
             model.ValueType = new List<string> { "java.lang.String", "java.lang.Integer" };
+
+            System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(typeof(XmlDocument));
+            string alltext =  System.IO.File.ReadAllText(@"C:\\Temp\\FNOLVehicleIncidentPopup.pcf");
+
+            // StreamWriter sw = new StreamWriter(@"C:\\Temp\\FNOLVehicleIncidentPopup.pcf");
+
+            XmlDocument doc = new XmlDocument();
+            //doc.Load(@"C:\\Temp\\FNOLVehicleIncidentPopup.pcf");
+            doc.LoadXml(alltext);
+
+
+            XmlNodeList nodes = doc.GetElementsByTagName("InputColumn");
+
+            foreach (XmlNode node in nodes)
+            {
+                XmlNodeList childnodes = node.ChildNodes;
+
+                foreach (XmlNode childnode in childnodes)
+                {
+                    XmlAttributeCollection attributes;
+                    if (childnode.Attributes != null)
+                    {
+                        attributes = childnode.Attributes;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    foreach (XmlAttribute attribute in attributes)
+                    {
+                        GWControl control = new GWControl();
+                        control.ControlType = childnode.Name;
+                        if(attribute.Name == "label")
+                        {
+                            control.Label = attribute.Value;
+                        }
+                        if (attribute.Name == "editable")
+                        {
+                            control.IsEditable = attribute.Value;
+                        }
+                        if (attribute.Name == "action")
+                        {
+                            control.Action = attribute.Value;
+                        }
+                        if (attribute.Name == "id")
+                        {
+                            control.ID = attribute.Value;
+                        }
+                        if (attribute.Name == "required")
+                        {
+                            control.IsRequired = attribute.Value;
+                        }
+                        if (attribute.Name == "visible")
+                        {
+                            control.IsVisible = attribute.Value;
+                        }
+                        if (attribute.Name == "value")
+                        {
+                            control.Value = attribute.Value;
+                        }
+                        if (attribute.Name == "valueType")
+                        {
+                            control.ValueType = attribute.Value;
+                        }
+                        else if(attribute.Name == "CustomValueType")
+                        {
+                            control.CustomValueType = attribute.Value;
+                        }
+
+                        model.GWControlList.Add(control);
+                    }
+                }
+            }         
+
             List<GWControl> newCollection = new List<GWControl>()
             {
                    new GWControl{ IsDeleted = false}

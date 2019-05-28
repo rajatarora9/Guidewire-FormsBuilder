@@ -16,7 +16,7 @@ namespace GWFormsBuilder.Models
             List<GWControl> GWControlList = new List<GWControl>();
         }
 
-        public List<string> InputType;
+        public Dictionary<string, string> InputType;
 
         public List<string> LevelZeroInputType;
 
@@ -40,10 +40,10 @@ namespace GWFormsBuilder.Models
     public class GWControl : GridModelBase
     {
 
-        [GridColumnAttributes("Input Type", ColumnType.DropDown, 1, true, false)]
+        [GridColumnAttributes("Input Type", ColumnType.TextBox, 1, true, false)]
         public string ControlType { get; set; }
 
-        [GridColumnAttributes("Is Editable", ColumnType.DropDown, 4, true, false)]
+        [GridColumnAttributes("Is Editable", ColumnType.TextBox, 4, true, false)]
         public string IsEditable { get; set; }
 
         [GridColumnAttributes("ID", ColumnType.TextBox, 2, true, false)]
@@ -55,19 +55,19 @@ namespace GWFormsBuilder.Models
         [GridColumnAttributes("Value", ColumnType.TextBox, 7, true, false)]
         public string Value { get; set; }
 
-        [GridColumnAttributes("Is Visible", ColumnType.DropDown, 5, true, false)]
+        [GridColumnAttributes("Is Visible", ColumnType.TextBox, 5, true, false)]
         public string IsVisible { get; set; }
 
-        [GridColumnAttributes("Value Type", ColumnType.DropDown, 8, true, false)]
+        [GridColumnAttributes("Value Type", ColumnType.TextBox, 8, true, false)]
         public string ValueType { get; set; }
 
         [GridColumnAttributes("Custom Value Type", ColumnType.TextBox, 9, true, false)]
         public string CustomValueType { get; set; }
 
-        [GridColumnAttributes("Is Required", ColumnType.DropDown, 6, true, false)]
+        [GridColumnAttributes("Is Required", ColumnType.TextBox, 6, true, false)]
         public string IsRequired { get; set; }
 
-        [GridColumnAttributes("Is Parent", ColumnType.DropDown, 10, true, false)]
+        [GridColumnAttributes("Is Parent", ColumnType.TextBox, 10, true, false)]
         public bool IsParent { get; set; }
 
     }
