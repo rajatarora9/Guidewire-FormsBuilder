@@ -20,20 +20,20 @@ namespace GWFormsBuilder.Controllers
             model.LevelOneGWControl = new List<LevelOneGWControl>();
             model.LevelZeroControlGrid = new List<LevelZeroControls>();
             model.InputType = new Dictionary<string, string>();
-            model.InputType .Add("TextInput", "TextInput");
-            model.InputType.Add("TypeKeyInput","TypeKeyInput");
+            model.InputType.Add("TextInput", "TextInput");
+            model.InputType.Add("TypeKeyInput", "TypeKeyInput");
             model.InputType.Add("CurrencyInput", "CurrencyInput");
             model.InputType.Add("BooleanRadioInput", "BooleanRadioInput");
             model.InputType.Add("Label", "Label");
             model.InputType.Add("TextAreaInput", "TextAreaInput");
             model.InputType.Add("DateInput", "DateInput");
-            model.LevelOneInputType = new List<string> {"Label", "ToolBar", "RowIterator", "PostOnChange", "InputDivider", "MenuItem", "Reflect"};
+            model.LevelOneInputType = new List<string> { "Label", "ToolBar", "RowIterator", "PostOnChange", "InputDivider", "MenuItem", "Reflect" };
             model.LevelZeroInputType = new List<string> { "DetailViewPanel" };
             model.YesNo = new List<string> { "True", "False" };
             model.ValueType = new List<string> { "java.lang.String", "java.lang.Integer" };
 
             System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(typeof(XmlDocument));
-            string alltext =  System.IO.File.ReadAllText(@"C:\\Temp\\FNOLVehicleIncidentPopup.pcf");
+            string alltext = System.IO.File.ReadAllText(@"C:\\Temp\\FNOLVehicleIncidentPopup.pcf");
 
             // StreamWriter sw = new StreamWriter(@"C:\\Temp\\FNOLVehicleIncidentPopup.pcf");
 
@@ -43,7 +43,7 @@ namespace GWFormsBuilder.Controllers
 
 
             XmlNodeList nodes = doc.GetElementsByTagName("InputColumn");
-            
+            int counter = 1;
             foreach (XmlNode node in nodes)
             {
                 XmlNodeList childnodes = node.ChildNodes;
@@ -54,12 +54,14 @@ namespace GWFormsBuilder.Controllers
                     XmlAttributeCollection attributes;
                     if (childnode.Attributes != null)
                     {
+
                         attributes = childnode.Attributes;
                         control.ControlType = childnode.Name;
+                        control.inputColumnIdentifier = counter;
                         foreach (XmlAttribute attribute in attributes)
                         {
 
-                            
+
                             if (attribute.Name == "label")
                             {
                                 control.Label = attribute.Value;
@@ -104,9 +106,9 @@ namespace GWFormsBuilder.Controllers
                     {
 
                     }
-
-                    
                 }
+                counter++;
+
             }
 
             List<GWControl> newCollection = new List<GWControl>()
@@ -154,106 +156,89 @@ namespace GWFormsBuilder.Controllers
             XmlElement pcf = doc.CreateElement("PCF");
             pcf.SetAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
             pcf.SetAttribute("xsi:noNamespaceSchemaLocation", "pcf.xsd");
-            XmlNode pcfDoc =  doc.AppendChild(pcf);
+            XmlNode pcfDoc = doc.AppendChild(pcf);
 
-            if (LevelZeroControlGrid.Any())
-            {
-                foreach (var L0Control in LevelZeroControlGrid)
-                {
-                    XmlElement parent = doc.CreateElement(L0Control.LevelZeroControl);
-                    XmlNode LevelZeroControl =  pcfDoc.AppendChild(parent);
-                    XmlElement inputcolumn = doc.CreateElement("InputColumn");
-                    
-                    XmlNode control = LevelZeroControl.AppendChild(inputcolumn);
 
-                    if (GWControlList.Any())
-                    {
-                        foreach (var getControl in GWControlList)
-                        {
-                            if (!String.IsNullOrEmpty(getControl.ControlType) && getControl.IsDeleted == false)
-                            {
-                                XmlElement nestedElementL1 = doc.CreateElement(getControl.ControlType);
-                                control.AppendChild(nestedElementL1);
+            System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(typeof(XmlDocument));
+            string alltext = System.IO.File.ReadAllText(@"C:\\Temp\\FNOLVehicleIncidentPopup.pcf");
 
-                                if (!String.IsNullOrEmpty(getControl.IsEditable))
-                                {
-                                    nestedElementL1.SetAttribute("editable", getControl.IsEditable);
-                                }
-
-                                if (!String.IsNullOrEmpty(getControl.ID))
-                                {
-                                    nestedElementL1.SetAttribute("id", getControl.ID);
-                                }
-
-                                if (!String.IsNullOrEmpty(getControl.Label))
-                                {
-                                    nestedElementL1.SetAttribute("label", getControl.Label);
-                                }
-
-                                if (!String.IsNullOrEmpty(getControl.IsVisible))
-                                {
-                                    nestedElementL1.SetAttribute("visible", getControl.IsVisible);
-                                }
-
-                                if (!String.IsNullOrEmpty(getControl.ValueType))
-                                {
-                                    nestedElementL1.SetAttribute("valueType", getControl.ValueType);
-                                }
-                                else if (!String.IsNullOrEmpty(getControl.CustomValueType))
-                                {
-                                    nestedElementL1.SetAttribute("valueType", getControl.CustomValueType);
-                                }
-
-                                if (!String.IsNullOrEmpty(getControl.Value))
-                                {
-                                    nestedElementL1.SetAttribute("value", getControl.Value);
-                                }
-
-                                if (!String.IsNullOrEmpty(getControl.IsRequired))
-                                {
-                                    nestedElementL1.SetAttribute("required", getControl.IsRequired);
-                                }
-
-                                if (getControl.IsParent)
-                                {
-                                    foreach (var item in LevelOneGWControl)
-                                    {
-                                        if (getControl.ID == item.ParentID)
-                                        {
-                                            XmlElement nestedElement = doc.CreateElement(item.LevelOneControl);
-                                            SetAttributeforLevelOne(nestedElement, item);
-                                            nestedElementL1.AppendChild(nestedElement);
-                                        }
-                                    }
-                                }
-
-                                //pcf.AppendChild(control);
-                            }
-                        }
-
-                        //MessageBox.Show(Filename + ".pcf has been generated successfully");
-                    }
-
-                        Data = doc.InnerXml;
-                        CreatedSuccesfully = true;
-                }
-            }
+            XmlDocument olddoc = new XmlDocument();
+            olddoc.LoadXml(alltext);
+            XmlNodeList nodes = olddoc.GetElementsByTagName("InputColumn");
             StringBuilder builder = new StringBuilder();
-            using (StringWriter stringWriter = new StringWriter(builder))
+            if (GWControlList.Any())
             {
-                // We will use the Formatting of our xmlTextWriter to provide our indentation.
-                using (XmlTextWriter xmlTextWriter = new XmlTextWriter(stringWriter))
+
+                for (int i = 1; i <= nodes.Count; i++)
                 {
-                    xmlTextWriter.Formatting = Formatting.Indented;
-                    doc.WriteTo(xmlTextWriter);
+                    XmlElement inputcolumn = doc.CreateElement("InputColumn");
+                    XmlNode input = pcfDoc.AppendChild(inputcolumn);
+                    foreach (GWControl gwControl in GWControlList)
+                    {
+                        if (gwControl.inputColumnIdentifier == i)
+                        {
+                            XmlElement controltype =  doc.CreateElement(gwControl.ControlType);
+
+                            if (!String.IsNullOrEmpty(gwControl.IsEditable))
+                            {
+                                controltype.SetAttribute("editable", gwControl.IsEditable);
+                            }
+
+                            if (!String.IsNullOrEmpty(gwControl.ID))
+                            {
+                                controltype.SetAttribute("id", gwControl.ID);
+                            }
+
+                            if (!String.IsNullOrEmpty(gwControl.Label))
+                            {
+                                controltype.SetAttribute("label", gwControl.Label);
+                            }
+
+                            if (!String.IsNullOrEmpty(gwControl.IsVisible))
+                            {
+                                controltype.SetAttribute("visible", gwControl.IsVisible);
+                            }
+
+                            if (!String.IsNullOrEmpty(gwControl.ValueType))
+                            {
+                                controltype.SetAttribute("valueType", gwControl.ValueType);
+                            }
+                            else if (!String.IsNullOrEmpty(gwControl.CustomValueType))
+                            {
+                                controltype.SetAttribute("valueType", gwControl.CustomValueType);
+                            }
+
+                            if (!String.IsNullOrEmpty(gwControl.Value))
+                            {
+                                controltype.SetAttribute("value", gwControl.Value);
+                            }
+
+                            if (!String.IsNullOrEmpty(gwControl.IsRequired))
+                            {
+                                controltype.SetAttribute("required", gwControl.IsRequired);
+                            }
+
+
+                            input.AppendChild(controltype);
+
+                        }
+                    }
+                }
+                using (StringWriter stringWriter = new StringWriter(builder))
+                {
+                    // We will use the Formatting of our xmlTextWriter to provide our indentation.
+                    using (XmlTextWriter xmlTextWriter = new XmlTextWriter(stringWriter))
+                    {
+                        xmlTextWriter.Formatting = Formatting.Indented;
+                        pcfDoc.WriteTo(xmlTextWriter);
+                    }
                 }
             }
-
-            return Json(new { isSuccess = CreatedSuccesfully, data = builder.ToString()});
-
+            return Json(new { isSuccess = true, data = builder.ToString() });
         }
+           
 
-        public void SetAttributeforLevelOne(XmlElement nestedElement , LevelOneGWControl control)
+        public void SetAttributeforLevelOne(XmlElement nestedElement, LevelOneGWControl control)
         {
             if (!String.IsNullOrEmpty(control.Actions))
             {

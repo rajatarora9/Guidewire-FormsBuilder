@@ -70,6 +70,9 @@ namespace GWFormsBuilder.Models
         [GridColumnAttributes("Is Parent", ColumnType.TextBox, 10, true, false)]
         public bool IsParent { get; set; }
 
+        [GridColumnAttributes("", ColumnType.None, 11, false, false)]
+        public int inputColumnIdentifier { get; set; }
+
     }
 
     public class LevelOneGWControl : GridModelBase
