@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace GWFormsBuilder.Models
 {
@@ -14,7 +15,16 @@ namespace GWFormsBuilder.Models
         public GWControlModel()
         {
             List<GWControl> GWControlList = new List<GWControl>();
+            Modules = new List<SelectListItem>();
         }
+        public List<SelectListItem> Modules { get; set; }
+
+        public List<SelectListItem> Files { get; set; }
+
+
+        public Dictionary<string, string> ModuleName { get; set; }
+
+        public Dictionary<string, string> FileNames { get; set; }
 
         public Dictionary<string, string> InputType;
 
