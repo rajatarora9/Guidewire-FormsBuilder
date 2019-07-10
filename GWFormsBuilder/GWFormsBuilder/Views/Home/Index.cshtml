@@ -4,7 +4,7 @@
 @{
     /**/
 
-    ViewBag.Title = "GW Forms Builder";
+    ViewBag.Title = "GW UI Builder";
     ViewData.Model = Model;
 }
 
@@ -12,9 +12,10 @@
 
 
 <div>
+                <h1 style="text-align:center">GW UI Builder</h1>
 </div>
 <div>
-    <table style="margin-bottom: 10px; margin-left:70px;">
+    <table style="margin-bottom: 10px; margin-left:50px;">
         <tr style="margin-left: 20px;">
             <td>
                 <h3>Module</h3>
@@ -42,14 +43,12 @@
 </div>
 
 
-<div style="margin-left: 15%;">
+<div style="margin-left: 5%;">
     <h3>Generated Code:</h3>
     <div style="width:80%; height:500px;overflow:auto"><pre id="xmldata"></pre></div>
         @*@Html.TextArea("GeneatedFile", "", new { @style = "height:300px; overflow-y:scroll;", @class="GenerateCodeTextAreaStyle", rows=10, spellcheck = "false" })*@
     </div>
-    <div>
-        <input type="button" value="Download File" style="width: 120px; height: 30px; margin-top: 40px; margin-left: 45%;" id="btnDownLoadFile" />
-    </div>
+
 </div>
 
 <script src="~/Scripts/jquery-3.3.1.min.js"></script>

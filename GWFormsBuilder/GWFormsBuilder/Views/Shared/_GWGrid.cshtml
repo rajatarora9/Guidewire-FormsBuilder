@@ -3,11 +3,10 @@
 @model GWControlModel
 
 <div id="divGWGrid">
- <table style="width:100%">
-        
+    <table style="width: 100%">
+
         <tr>
 
-            <td></td>
             <td></td>
             <td>
                 <h3>Level 1 - Control</h3>
@@ -19,10 +18,10 @@
                     </div>
                 </div>
                 <div></div>
-                <h3>Level 2 - Control </h3>
+                <h3 class="hide">Level 2 - Control </h3>
                 <div class="gwFormBuilder_Level1">
                     <div class="table-row">
-                        <div class="table-cell gridRow dynaGrid" style="width: 98% !important">
+                        <div class="table-cell gridRow dynaGrid hide" style="width: 98% !important">
                             @Html.EditorFor(model => Model.LevelOneGWControl, "Grid", Model.LevelOneGWControl)
                         </div>
                     </div>
@@ -31,10 +30,10 @@
         </tr>
         <tr>
             <td></td>
-            <td></td>
             <td>
-                <div style="text-align: center;">
+                <div style="margin-left: 25%;">
                     <input type="button" value="Generate Code" id="submit" />
+                    <input type="button" value="Download File" style="width: 120px; height: 30px; margin-top: 40px;" id="btnDownLoadFile" />
                 </div>
             </td>
         </tr>
